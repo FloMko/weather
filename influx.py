@@ -37,3 +37,13 @@ def populate(date: str, index: str, url: str, address: str, pm10: str, pm2_5: st
         }
     ]
     client.write_points(json_body)
+
+
+def import_db():
+    client = InfluxDBClient(host, port, user, password, dbname)
+    select_clause = 'SELECT * FROM {}'.format('weather')
+    df = pd.DataFrame(client.query(select_clause, chunked=True, chunk_size=10000).get_points())
+    df.to_csv('dummy.csv', encoding='utf-16', columns=['id', 'address', 'pm10','pm2_5', 'time'])
+
+
+# import_db()
