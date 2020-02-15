@@ -1,4 +1,6 @@
 influxdb
 pyyaml
 pytest
-#docker-compose
+docker-compose
+requests
+bs4
