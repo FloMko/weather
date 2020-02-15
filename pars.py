@@ -19,7 +19,8 @@ def parse(base_url, headers):
     if request.status_code == 200:
         soup = bs(request.content, 'html.parser')
         table = soup.find("table").find_all("tr")
-        for i in range(50):
+        rows = soup.find("table", border=1).find("tbody").find_all("tr")
+        for i in range(len(rows)):
             try:
                 stringintable = table[i]
                 for td in stringintable:
