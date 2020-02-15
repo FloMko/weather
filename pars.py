@@ -10,7 +10,6 @@ base_url = "http://www.infoeco.ru/index.php?id=2276"
 def url_pull():
     pass
 
-
 #Функция обхода страниц, начало с базового урла
 def parse(base_url, headers):
     table_string =[]
@@ -35,20 +34,12 @@ def parse(base_url, headers):
                     'number': rn,
                     'adress': sr,
                     'PM10': d,
-                    'PM25':n
+                    'PM25':n,
+                    'URL':base_url
                 }
                 print(data)
             except:
                 pass
-
-
-        #for i in range(len(table)):
-        #    if table[i] != '' and table[i] != '\n':
-                # table_string.append(table[i])
-        #Stringtable = ''.join(table_string)
-        #print(Stringtable)
-
-
 
 
 
