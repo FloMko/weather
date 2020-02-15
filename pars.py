@@ -71,9 +71,9 @@ def parse(link, headers):
         except:
             logging.error(f'{link}')
 
-linklist = urls_pull()
-for link in linklist:
-    parse(link,headers)
-    logging.debug(link)
+#linklist = urls_pull()
+# # # # # #for link in linklist:
+# # # # # #    parse(link,headers)
+# # # # # #    logging.debug(link)
 
-#parse(base_url, headers)
+parse('http://www.infoeco.ru/index.php?id=3108', headers)
