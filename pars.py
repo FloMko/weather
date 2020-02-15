@@ -45,24 +45,20 @@ def get_info(link, headers):
     if request.status_code == 200:
         try:
             soup = bs(request.content, 'html.parser')
-            table = soup.find("table").find_all("tr")
             rows = soup.find("table", border=1).find("tbody").find_all("tr")
             date = soup.find("table", border=1).find("td").get_text().strip().split(' ')[-1]
         except:
             logging.error(f'{link}')
-    return table, rows, date
+    return rows, date
 
 
-def parse(table, rows, date):
-    for i in range(len(rows)):
+def parse(rows, date):
+    for row in rows:
         try:
-            stringintable = table[i]
-            for _ in stringintable:
-                rn = stringintable.find_all("td")[0].get_text().strip()
-                sr = stringintable.find_all("td")[1].get_text().strip()
-                d = stringintable.find_all("td")[2].get_text().strip()
-                n = stringintable.find_all("td")[3].get_text().strip()
-
+            rn = row.find_all("td")[0].get_text().strip()
+            sr = row.find_all("td")[1].get_text().strip()
+            d = row.find_all("td")[2].get_text().strip()
+            n = row.find_all("td")[3].get_text().strip()
             data = {
                 'date': date,
                 'url': link,
@@ -71,16 +67,17 @@ def parse(table, rows, date):
                 'pm10': d,
                 'pm2_5': n
             }
+            logging.warning(data)
             influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
                             data['pm2_5'])
-        except:
-            logging.error('')
+        except Exception as e:
+            logging.error(e)
 
 
 linklist = urls_pull()
 for link in linklist:
-    table, rows, date = get_info(link, headers)
-    parse(table, rows, date)
+    rows, date = get_info(link, headers)
+    parse(rows, date)
     logging.debug(link)
 
 # parse(base_url, headers)
