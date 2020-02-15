@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as bs
 
 import influx
 
-logging.getLogger().setLevel(logging.WARN)
+logging.getLogger().setLevel(logging.ERROR)
 
 headers = {"accept": "*/*",
            "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36'}
@@ -40,12 +40,13 @@ def urls_pull():
 
 # Функция обхода страниц, начало с базового урла
 def get_info(link, headers):
+    rows = {}
     session = requests.Session()  # Эмуляция сессии
     request = session.get(link, headers=headers)
     if request.status_code == 200:
         try:
             soup = bs(request.content, 'html.parser')
-            rows = soup.find("table", border=1).find("tbody").find_all("tr")
+            rows = soup.find("table", border=1).find_all("tr")
             date = soup.find("table", border=1).find("td").get_text().strip().split(' ')[-1]
         except:
             logging.error(f'{link}')
@@ -53,23 +54,24 @@ def get_info(link, headers):
 
 
 def parse(rows, date):
-    for row in rows:
+
         try:
-            rn = row.find_all("td")[0].get_text().strip()
-            sr = row.find_all("td")[1].get_text().strip()
-            d = row.find_all("td")[2].get_text().strip()
-            n = row.find_all("td")[3].get_text().strip()
-            data = {
-                'date': date,
-                'url': link,
-                'index': rn,
-                'address': sr,
-                'pm10': d,
-                'pm2_5': n
-            }
-            logging.warning(data)
-            influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
-                            data['pm2_5'])
+            for row in rows:
+                rn = row.find_all("td")[0].get_text().strip()
+                sr = row.find_all("td")[1].get_text().strip()
+                d = row.find_all("td")[2].get_text().strip()
+                n = row.find_all("td")[3].get_text().strip()
+                data = {
+                    'date': date,
+                    'url': link,
+                    'index': rn,
+                    'address': sr,
+                    'pm10': d,
+                    'pm2_5': n
+                }
+                logging.warning(data)
+                influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
+                                data['pm2_5'])
         except Exception as e:
             logging.error(e)
 
@@ -79,5 +81,3 @@ for link in linklist:
     rows, date = get_info(link, headers)
     parse(rows, date)
     logging.debug(link)
-
-parse('http://www.infoeco.ru/index.php?id=3108', headers)
