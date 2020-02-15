@@ -20,6 +20,7 @@ def parse(base_url, headers):
         soup = bs(request.content, 'html.parser')
         table = soup.find("table").find_all("tr")
         rows = soup.find("table", border=1).find("tbody").find_all("tr")
+        date = soup.find("table", border=1).find("td").get_text().strip()
         for i in range(len(rows)):
             try:
                 stringintable = table[i]
@@ -30,6 +31,7 @@ def parse(base_url, headers):
                     n = stringintable.find_all("td")[3].get_text().strip()
 
                 data = {
+                    'date': date,
                     'number': rn,
                     'adress': sr,
                     'PM10': d,
