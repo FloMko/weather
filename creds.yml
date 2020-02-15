@@ -1,0 +1,6 @@
+influx:
+  host: '127.0.0.1'
+  db: 'weather'
+  user: 'user'
+  password: 'user'
+  port: '8086'
