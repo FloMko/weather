@@ -5,7 +5,8 @@ from bs4 import BeautifulSoup as bs
 
 import influx
 
-logging.getLogger().setLevel(logging.ERROR)
+logging.basicConfig(format='%(asctime)s %(message)s')
+logging.getLogger().setLevel(logging.WARN)
 
 headers = {"accept": "*/*",
            "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36'}
@@ -73,7 +74,7 @@ def parse(rows, date):
                 influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
                                 data['pm2_5'])
         except Exception as e:
-            logging.error(e)
+            logging.error(f'{e}')
 
 
 linklist = urls_pull()
@@ -81,3 +82,5 @@ for link in linklist:
     rows, date = get_info(link, headers)
     parse(rows, date)
     logging.debug(link)
+
+# parse(base_url, headers)
