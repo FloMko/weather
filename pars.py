@@ -39,7 +39,7 @@ def urls_pull():
 
 
 # Функция обхода страниц, начало с базового урла
-def parse(link, headers):
+def get_info(link, headers):
     session = requests.Session()  # Эмуляция сессии
     request = session.get(link, headers=headers)
     if request.status_code == 200:
@@ -48,34 +48,39 @@ def parse(link, headers):
             table = soup.find("table").find_all("tr")
             rows = soup.find("table", border=1).find("tbody").find_all("tr")
             date = soup.find("table", border=1).find("td").get_text().strip().split(' ')[-1]
-            for i in range(len(rows)):
-                try:
-                    stringintable = table[i]
-                    for _ in stringintable:
-                        rn = stringintable.find_all("td")[0].get_text().strip()
-                        sr = stringintable.find_all("td")[1].get_text().strip()
-                        d = stringintable.find_all("td")[2].get_text().strip()
-                        n = stringintable.find_all("td")[3].get_text().strip()
-
-                    data = {
-                        'date': date,
-                        'url': link,
-                        'index': rn,
-                        'address': sr,
-                        'pm10': d,
-                        'pm2_5': n
-                    }
-                    influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
-                                    data['pm2_5'])
-                except:
-                    pass
         except:
             logging.error(f'{link}')
+    return table, rows, date
+
+
+def parse(table, rows, date):
+    for i in range(len(rows)):
+        try:
+            stringintable = table[i]
+            for _ in stringintable:
+                rn = stringintable.find_all("td")[0].get_text().strip()
+                sr = stringintable.find_all("td")[1].get_text().strip()
+                d = stringintable.find_all("td")[2].get_text().strip()
+                n = stringintable.find_all("td")[3].get_text().strip()
+
+            data = {
+                'date': date,
+                'url': link,
+                'index': rn,
+                'address': sr,
+                'pm10': d,
+                'pm2_5': n
+            }
+            influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
+                            data['pm2_5'])
+        except:
+            logging.error('')
 
 
 linklist = urls_pull()
 for link in linklist:
-    parse(link, headers)
+    table, rows, date = get_info(link, headers)
+    parse(table, rows, date)
     logging.debug(link)
 
 parse('http://www.infoeco.ru/index.php?id=3108', headers)
