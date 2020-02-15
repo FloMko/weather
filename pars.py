@@ -1,6 +1,8 @@
 import csv
 import requests
 from bs4 import BeautifulSoup as bs
+import influx
+
 
 headers = {"accept": "*/*",
            "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36'}
@@ -30,11 +32,12 @@ def parse(base_url, headers):
                     n = stringintable.find_all("td")[3].get_text().strip()
 
                 data = {
-                    'number': rn,
-                    'adress': sr,
-                    'PM10': d,
-                    'PM25':n
+                    'index': rn,
+                    'address': sr,
+                    'pm10': d,
+                    'pm2_5':n
                 }
+                influx.populate(data['index'], data['address'], data['pm10'], data['pm2_5'])
                 print(data)
             except:
                 pass
