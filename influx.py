@@ -18,7 +18,7 @@ client = InfluxDBClient(host, port, user, password, dbname)
 logging.debug(client.get_list_database())
 
 
-def populate(index: str, address: str, pm10: str, pm2_5: str):
+def populate(date: str, index: str, url: str, address: str, pm10: str, pm2_5: str):
     """
     send data to influxdb
     :return: result
@@ -27,7 +27,9 @@ def populate(index: str, address: str, pm10: str, pm2_5: str):
         {
             "measurement": "weather",
             "fields": {
+                "date": date,
                 "id": index,
+                "url": url,
                 "address": address,
                 "pm10": pm10,
                 "pm2_5": pm2_5
