@@ -26,9 +26,12 @@ def populate(date: str, index: str, url: str, address: str, pm10: str, pm2_5: st
     json_body = [
         {
             "measurement": "weather",
-            "fields": {
-                "date": date,
+            "tags" : {
                 "id": index,
+                "date": date.replace('.', '-') + 'T12:12:12.000Z'
+            },
+            "time": date.replace('.', '-') + 'T12:12:12.000Z',
+            "fields": {
                 "url": url,
                 "address": address,
                 "pm10": pm10,

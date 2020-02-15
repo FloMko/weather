@@ -39,7 +39,7 @@ def parse(base_url, headers):
                     'pm10': d,
                     'pm2_5':n
                 }
-                influx.populate(data['date'],data['url'],data['index'], data['address'], data['pm10'], data['pm2_5'])
+                influx.populate(data['date'],data['index'],data['url'], data['address'], data['pm10'], data['pm2_5'])
                 print(data)
             except:
                 pass
