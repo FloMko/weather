@@ -19,23 +19,24 @@ def parse(base_url, headers):
     if request.status_code == 200:
         soup = bs(request.content, 'html.parser')
         table = soup.find("table").find_all("tr")
+        for i in range(50):
+            try:
+                stringintable = table[i]
+                for td in stringintable:
+                    rn = stringintable.find_all("td")[0].get_text().strip()
+                    sr = stringintable.find_all("td")[1].get_text().strip()
+                    d = stringintable.find_all("td")[2].get_text().strip()
+                    n = stringintable.find_all("td")[3].get_text().strip()
 
-        stringintable = table[5]
-        for td in stringintable:
-            rn = stringintable.find_all("td")[0].get_text().strip()
-            sr = stringintable.find_all("td")[1].get_text().strip()
-            d = stringintable.find_all("td")[2].get_text().strip()
-            n = stringintable.find_all("td")[3].get_text().strip()
-
-
-        data = {
-            'number': rn,
-            'adress': sr,
-            'PM10': d,
-            'PM25':n
-        }
-        print(data)
-
+                data = {
+                    'number': rn,
+                    'adress': sr,
+                    'PM10': d,
+                    'PM25':n
+                }
+                print(data)
+            except:
+                pass
 
 
         #for i in range(len(table)):
