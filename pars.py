@@ -40,44 +40,47 @@ def urls_pull():
 
 # Функция обхода страниц, начало с базового урла
 def get_info(link, headers):
-    rows = {}
     session = requests.Session()  # Эмуляция сессии
     request = session.get(link, headers=headers)
     if request.status_code == 200:
         try:
             soup = bs(request.content, 'html.parser')
-            rows = soup.find("table", border=1).find_all("tr")
+            rows = soup.find("table", border=1).find("tbody").find_all("tr")
             date = soup.find("table", border=1).find("td").get_text().strip().split(' ')[-1]
         except:
+            # date = None
+            # rows = None
             logging.error(f'{link}')
     return rows, date
 
 
-def parse(rows, date):
-
-        try:
-            for row in rows:
+def parse(rows, date, link):
+        for row in rows:
+            try:
                 rn = row.find_all("td")[0].get_text().strip()
                 sr = row.find_all("td")[1].get_text().strip()
                 d = row.find_all("td")[2].get_text().strip()
                 n = row.find_all("td")[3].get_text().strip()
                 data = {
-                    'date': date,
-                    'url': link,
-                    'index': rn,
-                    'address': sr,
-                    'pm10': d,
-                    'pm2_5': n
-                }
+                        'date': date,
+                        'url': link,
+                        'index': rn,
+                        'address': sr,
+                        'pm10': d,
+                        'pm2_5': n
+                    }
                 logging.warning(data)
                 influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
                                 data['pm2_5'])
-        except Exception as e:
-            logging.error(e)
+            except Exception as e:
+                logging.error(e)
 
 
 linklist = urls_pull()
-for link in linklist:
-    rows, date = get_info(link, headers)
-    parse(rows, date)
-    logging.debug(link)
+try:
+    for link in linklist:
+        rows, date = get_info(link, headers)
+        parse(rows, date, link)
+        logging.debug(link)
+except:
+    pass
