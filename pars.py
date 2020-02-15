@@ -53,10 +53,10 @@ def get_info(link, headers):
     return rows, date
 
 
-def parse(rows, date):
+def parse(rows, date, link):
 
-        try:
-            for row in rows:
+        for row in rows:
+            try:
                 rn = row.find_all("td")[0].get_text().strip()
                 sr = row.find_all("td")[1].get_text().strip()
                 d = row.find_all("td")[2].get_text().strip()
@@ -72,8 +72,8 @@ def parse(rows, date):
                 logging.warning(data)
                 influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
                                 data['pm2_5'])
-        except Exception as e:
-            logging.error(e)
+            except Exception as e:
+                logging.error(e)
 
 
 linklist = urls_pull()
