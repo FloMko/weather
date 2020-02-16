@@ -63,5 +63,5 @@ def import_db():
     client_pandas.write_points(df, 'stations')
 
 
-export_db()
+# export_db()
 # import_db()

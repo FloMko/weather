@@ -98,3 +98,4 @@ for link in linklist:
     if date is not None:
         parse(rows, date, link)
     logging.debug(link)
+influx.export_db()
