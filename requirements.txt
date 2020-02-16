@@ -5,3 +5,4 @@ docker-compose
 requests
 bs4
 docx2csv
+pandas
