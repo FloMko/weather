@@ -29,9 +29,10 @@ logging.error('test')
 
 def urls_pull():
     linklist = []
-    urlsforears = ['http://www.infoeco.ru/index.php?id=2820', 'http://www.infoeco.ru/index.php?id=3122',
-                   'http://www.infoeco.ru/index.php?id=4355', 'http://www.infoeco.ru/index.php?id=6532',
-                   'http://www.infoeco.ru/index.php?id=8221']
+    urlsforears = ['http://www.infoeco.ru/index.php?id=2820', 'http://www.infoeco.ru/index.php?id=3259',
+                   'http://www.infoeco.ru/index.php?id=4352', 'http://www.infoeco.ru/index.php?id=6529',
+                   'http://www.infoeco.ru/index.php?id=8209']
+    urlsforears.sort(reverse=True)
     for url_year in urlsforears:
         for index in range(500):
             if index % 20 == 0 or index - 1 == 0:
@@ -72,6 +73,10 @@ def parse(rows, date, link):
                 sr = row.find_all("td")[1].get_text().strip()
                 d = row.find_all("td")[2].get_text().strip()
                 n = row.find_all("td")[3].get_text().strip()
+                if d == 'менее 0,1' or n == '-*':
+                    d = '0.05'
+                if n == 'менее 0,1' or n == '-*':
+                    n = '0.05'
                 data = {
                     'date': date,
                     'url': link.strip(),
