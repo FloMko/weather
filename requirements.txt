@@ -4,3 +4,4 @@ pytest
 docker-compose
 requests
 bs4
+pandas
