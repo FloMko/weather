@@ -1,5 +1,5 @@
 import logging
-
+import csv
 import requests
 from bs4 import BeautifulSoup as bs
 
@@ -54,7 +54,6 @@ def get_info(link, headers):
 
 
 def parse(rows, date, link):
-
         for row in rows:
             try:
                 rn = row.find_all("td")[0].get_text().strip()
@@ -72,6 +71,7 @@ def parse(rows, date, link):
                 logging.warning(data)
                 influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
                                 data['pm2_5'])
+
             except Exception as e:
                 logging.error(e)
 
