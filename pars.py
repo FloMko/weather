@@ -61,9 +61,9 @@ def get_info(link, headers):
             soup = bs(request.content, 'html.parser')
             rows = soup.find("table", border=1).find_all("tr")
             date = soup.find("table", border=1).find("td").get_text().strip().split(' ')[-1]
+            return rows, date
         except:
             logging.error(f'{link}')
-    return rows, date
 
 
 def parse(rows, date, link):
@@ -73,10 +73,10 @@ def parse(rows, date, link):
                 sr = row.find_all("td")[1].get_text().strip()
                 d = row.find_all("td")[2].get_text().strip()
                 n = row.find_all("td")[3].get_text().strip()
-                if d == 'менее 0,1' or n == '-*':
-                    d = '0.05'
+                if d == 'менее 0,1' or d == '-*':
+                    d = '0,05'
                 if n == 'менее 0,1' or n == '-*':
-                    n = '0.05'
+                    n = '0,05'
                 data = {
                     'date': date,
                     'url': link.strip(),
@@ -95,5 +95,6 @@ def parse(rows, date, link):
 linklist = urls_pull()
 for link in linklist:
     rows, date = get_info(link, headers)
-    parse(rows, date, link)
+    if date is not None:
+        parse(rows, date, link)
     logging.debug(link)

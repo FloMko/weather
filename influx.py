@@ -44,7 +44,7 @@ def populate(date: str, index: str, url: str, address: str, pm10: str, pm2_5: st
 def export_db():
     client = InfluxDBClient(host, port, user, password, dbname)
     select_clause = 'SELECT * FROM {}'.format('weather')
-    df = pd.DataFrame(client.query(select_clause, chunked=True, chunk_size=10000).get_points())
+    df = pd.DataFrame(client.query(select_clause, chunked=True, chunk_size=20010).get_points())
     df.to_csv('dummy.csv', encoding='utf-16', columns=['id','pm10','pm2_5', 'time'])
 
 
@@ -63,5 +63,5 @@ def import_db():
     client_pandas.write_points(df, 'stations')
 
 
-# export_db()
+export_db()
 # import_db()
