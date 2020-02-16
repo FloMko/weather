@@ -94,7 +94,11 @@ def parse(rows, date, link):
 
 linklist = urls_pull()
 for link in linklist:
-    rows, date = get_info(link, headers)
+    try:
+        rows, date = get_info(link, headers)
+    except Exception as e:
+        logging.error(f" main error {e}")
+        date = None
     if date is not None:
         parse(rows, date, link)
     logging.debug(link)
