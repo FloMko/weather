@@ -1,5 +1,5 @@
 influx:
-  host: '192.168.88.245'
+  host: '127.0.0.1'
   db: 'weather'
   user: 'user'
   password: 'user'

@@ -1,17 +1,30 @@
 import logging
-
+import os
 import requests
 from bs4 import BeautifulSoup as bs
-
+import sys
 import influx
 
-logging.getLogger().setLevel(logging.ERROR)
+logger = logging.getLogger()
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+        '%(levelname)s %(module)s - %(funcName)s: %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.ERROR)
+# logging.basicConfig(
+#     level=logging.WARNING,
+#     format='%(levelname)s %(module)s - %(funcName)s: %(message)s',
+#     datefmt='%Y-%m-%d %H:%M:%S',
+#     stream=sys.stderr
+# )
+logging = logging.getLogger(__name__)
 
 headers = {"accept": "*/*",
            "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36'}
 
 
-# Начало парсинга со страницы арентдных квартир в Санкт-Петербурге
+logging.error('test')
 
 
 def urls_pull():
@@ -34,7 +47,6 @@ def urls_pull():
                         linklist.append(link)
             else:
                 pass
-
     return linklist
 
 
@@ -54,7 +66,6 @@ def get_info(link, headers):
 
 
 def parse(rows, date, link):
-
         for row in rows:
             try:
                 rn = row.find_all("td")[0].get_text().strip()
@@ -63,7 +74,7 @@ def parse(rows, date, link):
                 n = row.find_all("td")[3].get_text().strip()
                 data = {
                     'date': date,
-                    'url': link,
+                    'url': link.strip(),
                     'index': rn,
                     'address': sr,
                     'pm10': d,
@@ -73,11 +84,11 @@ def parse(rows, date, link):
                 influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
                                 data['pm2_5'])
             except Exception as e:
-                logging.error(e)
+                logging.error(f" main error {e} with {date} and link {link} and {row}")
 
 
 linklist = urls_pull()
 for link in linklist:
     rows, date = get_info(link, headers)
-    parse(rows, date)
+    parse(rows, date, link)
     logging.debug(link)

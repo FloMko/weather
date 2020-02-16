@@ -29,12 +29,10 @@ def populate(date: str, index: str, url: str, address: str, pm10: str, pm2_5: st
             "measurement": "weather",
             "tags" : {
                 "id": index,
-                "date": date.replace('.', '-') + 'T12:12:12.000Z'
             },
             "time": date.replace('.', '-') + 'T12:12:12.000Z',
             "fields": {
                 "url": url,
-                "address": address,
                 "pm10": pm10,
                 "pm2_5": pm2_5
             }
@@ -52,7 +50,7 @@ def export_db():
 
 def import_db():
     df = pd.read_csv('monit-pnts.csv', sep=';')
-    date=[]
+    date = []
     for i in range(df.count()[0]):
         date.append(1483013532000000000 + int(str(i) + '000000000'))
     df = df.assign(Date=date)
@@ -61,10 +59,9 @@ def import_db():
     df['Datetime'] = pd.to_datetime(df['Date'])
     df = df.set_index('Datetime')
     df = df.drop(['Date'], axis=1)
-    print(df)
     client_pandas = DataFrameClient(host, port, user, password, dbname)
     client_pandas.write_points(df, 'stations')
 
 
 # export_db()
-import_db()
+# import_db()
