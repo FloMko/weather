@@ -22,6 +22,14 @@ services:
     - 3000:3000
     networks:
       - weather
+  jupiter:
+    image: jupyter/scipy-notebook:63d0df23b673
+    command:
+      start.sh jupyter notebook --NotebookApp.token=''
+    ports:
+      - 127.0.0.1:8888:8888
+    networks:
+      - weather
 networks:
   weather:
     driver: bridge
