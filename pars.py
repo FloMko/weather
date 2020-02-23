@@ -1,8 +1,6 @@
 import logging
-import os
 import requests
 from bs4 import BeautifulSoup as bs
-import sys
 import influx
 
 logger = logging.getLogger()
@@ -62,8 +60,8 @@ def get_info(link, headers):
             rows = soup.find("table", border=1).find_all("tr")
             date = soup.find("table", border=1).find("td").get_text().strip().split(' ')[-1]
             return rows, date
-        except:
-            logging.error(f'{link}')
+        except Exception as e:
+            logging.error(f"{link} with error {e}")
 
 
 def parse(rows, date, link):

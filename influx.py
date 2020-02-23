@@ -6,7 +6,7 @@ import pandas as pd
 
 
 with open("creds.yml", 'r') as ymlfile:
-    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+    cfg = yaml.safe_load(ymlfile, Loader=yaml.FullLoader)
     host = cfg['influx']['host']
     user = cfg['influx']['user']
     password = cfg['influx']['password']
@@ -43,7 +43,8 @@ def populate(date: str, index: str, url: str, address: str, pm10: str, pm2_5: st
 
 def export_db():
     client = InfluxDBClient(host, port, user, password, dbname)
-    select_clause = 'SELECT * FROM {}'.format('weather')
+    measurement = "weather"
+    select_clause = f"SELECT * FROM {measurement}"
     df = pd.DataFrame(client.query(select_clause, chunked=True, chunk_size=20010).get_points())
     df.to_csv('dummy.csv', encoding='utf-16', columns=['id','pm10','pm2_5', 'time'])
 
