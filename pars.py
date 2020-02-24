@@ -1,30 +1,18 @@
 import logging
-import os
+import logging.config
 import requests
 from bs4 import BeautifulSoup as bs
-import sys
 import influx
+import yaml
 
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = logging.Formatter(
-        '%(levelname)s %(module)s - %(funcName)s: %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-logger.setLevel(logging.ERROR)
-# logging.basicConfig(
-#     level=logging.WARNING,
-#     format='%(levelname)s %(module)s - %(funcName)s: %(message)s',
-#     datefmt='%Y-%m-%d %H:%M:%S',
-#     stream=sys.stderr
-# )
-logging = logging.getLogger(__name__)
+# Onboard logging
+with open("log.conf.yml", 'r') as ymlfile:
+    cfg = yaml.safe_load(ymlfile)
+    logging.config.dictConfig(cfg)
+
 
 headers = {"accept": "*/*",
-           "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36'}
-
-
-logging.error('test')
+           "User-Agent": 'bot that watch for big brother'}
 
 
 def urls_pull():
@@ -53,7 +41,6 @@ def urls_pull():
 
 # Функция обхода страниц, начало с базового урла
 def get_info(link, headers):
-    rows = {}
     session = requests.Session()  # Эмуляция сессии
     request = session.get(link, headers=headers)
     if request.status_code == 200:
@@ -62,34 +49,46 @@ def get_info(link, headers):
             rows = soup.find("table", border=1).find_all("tr")
             date = soup.find("table", border=1).find("td").get_text().strip().split(' ')[-1]
             return rows, date
-        except:
-            logging.error(f'{link}')
+        except Exception as e:
+            logging.warning(f"{link} with error {e}")
+
+
+def check_value(value: str):
+    """
+    Convert str value to float
+    :param value: str
+    :return: float
+    """
+    if value in ['менее 0,1', 'Mенее 0,1']:
+        return 0.05
+    try:
+        return float(value.replace(',', '.'))
+    except ValueError:
+        return None
 
 
 def parse(rows, date, link):
-        for row in rows:
-            try:
-                rn = row.find_all("td")[0].get_text().strip()
-                sr = row.find_all("td")[1].get_text().strip()
-                d = row.find_all("td")[2].get_text().strip()
-                n = row.find_all("td")[3].get_text().strip()
-                if d == 'менее 0,1' or d == '-*':
-                    d = '0,05'
-                if n == 'менее 0,1' or n == '-*':
-                    n = '0,05'
-                data = {
+    for row in rows:
+        try:
+            rn = row.find_all("td")[0].get_text().strip()
+            sr = row.find_all("td")[1].get_text().strip()
+            d = row.find_all("td")[2].get_text().strip()
+            n = row.find_all("td")[3].get_text().strip()
+            d = check_value(d)
+            n = check_value(n)
+            data = {
                     'date': date,
                     'url': link.strip(),
                     'index': rn,
                     'address': sr,
                     'pm10': d,
                     'pm2_5': n
-                }
-                logging.warning(data)
-                influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
-                                data['pm2_5'])
-            except Exception as e:
-                logging.error(f" main error {e} with {date} and link {link} and {row}")
+            }
+            logging.warning(data)
+            influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
+                            data['pm2_5'])
+        except Exception as e:
+            logging.warning(f" main error {e} with {date} and link {link} and {row}")
 
 
 linklist = urls_pull()
@@ -101,5 +100,4 @@ for link in linklist:
         date = None
     if date is not None:
         parse(rows, date, link)
-    logging.debug(link)
 influx.export_db()
