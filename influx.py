@@ -6,7 +6,7 @@ import pandas as pd
 
 
 with open("creds.yml", 'r') as ymlfile:
-    cfg = yaml.safe_load(ymlfile, Loader=yaml.FullLoader)
+    cfg = yaml.safe_load(ymlfile)
     host = cfg['influx']['host']
     user = cfg['influx']['user']
     password = cfg['influx']['password']
@@ -21,13 +21,13 @@ logging.debug(client.get_list_database())
 
 def populate(date: str, index: str, url: str, address: str, pm10: str, pm2_5: str):
     """
-    send data to influxdb
+    Send data to influxdb
     :return: result
     """
     json_body = [
         {
             "measurement": "weather",
-            "tags" : {
+            "tags": {
                 "id": index,
             },
             "time": date.replace('.', '-') + 'T12:12:12.000Z',
@@ -46,7 +46,7 @@ def export_db():
     measurement = "weather"
     select_clause = f"SELECT * FROM {measurement}"
     df = pd.DataFrame(client.query(select_clause, chunked=True, chunk_size=20010).get_points())
-    df.to_csv('dummy.csv', encoding='utf-16', columns=['id','pm10','pm2_5', 'time'])
+    df.to_csv('notebook/dummy.csv', encoding='utf-16', columns=['id', 'pm10', 'pm2_5', 'time'])
 
 
 def import_db():
