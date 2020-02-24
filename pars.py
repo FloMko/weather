@@ -5,14 +5,14 @@ from bs4 import BeautifulSoup as bs
 import influx
 import yaml
 
-# onboard logging
+# Onboard logging
 with open("log.conf.yml", 'r') as ymlfile:
     cfg = yaml.safe_load(ymlfile)
     logging.config.dictConfig(cfg)
 
 
 headers = {"accept": "*/*",
-           "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.87 Safari/537.36'}
+           "User-Agent": 'bot that watch for big brother'}
 
 
 def urls_pull():
@@ -41,7 +41,6 @@ def urls_pull():
 
 # Функция обхода страниц, начало с базового урла
 def get_info(link, headers):
-    rows = {}
     session = requests.Session()  # Эмуляция сессии
     request = session.get(link, headers=headers)
     if request.status_code == 200:
@@ -56,7 +55,7 @@ def get_info(link, headers):
 
 def check_value(value: str):
     """
-    convert str value to float
+    Convert str value to float
     :param value: str
     :return: float
     """
@@ -89,7 +88,7 @@ def parse(rows, date, link):
             influx.populate(data['date'], data['index'], data['url'], data['address'], data['pm10'],
                             data['pm2_5'])
         except Exception as e:
-            logging.error(f" main error {e} with {date} and link {link} and {row}")
+            logging.warning(f" main error {e} with {date} and link {link} and {row}")
 
 
 linklist = urls_pull()
@@ -101,5 +100,4 @@ for link in linklist:
         date = None
     if date is not None:
         parse(rows, date, link)
-    logging.debug(link)
 influx.export_db()

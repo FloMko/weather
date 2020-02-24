@@ -47,7 +47,17 @@ def export_db():
     select_clause = f"SELECT * FROM {measurement}"
     df = pd.DataFrame(client.query(select_clause, chunked=True, chunk_size=20010).get_points())
     df.to_csv('notebook/dummy.csv', encoding='utf-16', columns=['id', 'pm10', 'pm2_5', 'time'])
+    df = df.set_index('time')
+    new_df = format_df(df)
+    new_df.to_csv('notebook/formatted.csv', encoding='utf-16')
 
+
+def format_df(df):
+    new_df = pd.DataFrame()
+    for key in df['id'].unique():
+        new_df[f"id={key}, pm=2_5"] = df.loc[df['id'] == f"{key}"]['pm2_5']
+        new_df[f"id={key}, pm=10"] = df.loc[df['id'] == f"{key}"]['pm10']
+    return new_df
 
 def import_db():
     df = pd.read_csv('monit-pnts.csv', sep=';')
@@ -64,5 +74,5 @@ def import_db():
     client_pandas.write_points(df, 'stations')
 
 
-# export_db()
+export_db()
 # import_db()
